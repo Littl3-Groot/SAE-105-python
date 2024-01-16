@@ -38,4 +38,4 @@ Le projet sera évalué sur :
 > - `pip install matplotlib`
 
 ## Auteur
-@Littl3 Groot
+@Littl3-Groot
