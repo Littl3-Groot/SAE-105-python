@@ -2,7 +2,7 @@
 
 > [!CAUTION]
 > Ce dépôt est fourni dans un but éducatif et d'assistance dans le cadre du projet SAE 105. 
-Il est strictement interdit de copier et coller le code _(Ceci serait d'ailleurs contre productif au vu du contrôle qui vous attend)._
+Il est strictement interdit de **copier et coller le code** _(Ceci serait d'ailleurs contre productif au vu du contrôle qui vous attend)._
 Chaque étudiant doit développer et soumettre son propre travail !
 
 
