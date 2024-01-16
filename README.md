@@ -1,6 +1,6 @@
 # SAE-105
 
-# Projet Analyse de Données Ville France
+# Projet Analyse de Données Des Villes France
 
 ## Description
 Ce projet consiste en l'analyse et le traitement de données de villes françaises à partir d'un fichier CSV. Développé dans le cadre de la SAE 105 pour les étudiants en R&T, il vise à appliquer des compétences en programmation Python et en traitement de données.
@@ -25,6 +25,8 @@ Le projet sera évalué sur :
 ## Ressources
 - Fichier CSV des villes françaises.
 - Bibliothèques Python recommandées : `folium` pour la cartographie, `matplotlib.pyplot` pour les graphiques.
+    - `pip install folium`
+    - `pip install matplotlib`
 
 ## Auteur
 @Littl3 Groot
