@@ -459,36 +459,25 @@ def dist_GEOdesique(ville1, ville2):
 #=================================================================
 # Recherche un ensemble de villes distante de R km dans une liste
 #=================================================================
-def ensembleVilles(name, rayon, listeInfo):
+def ensembleVilles(ville1, rayon, listeInfo):
     """
     :param name: centre = ville avec les 12 infos
     :param rayon: distance de la ville retenue
     :param listeInfo: liste de toutes les villes
     :return: listeVilles[i] : la ville recherchée
     """
-
     listeVillesTrouvees = []
-    name = rechercheVille(name, listeInfo)
 
     for ville in listeInfo:
-        if isInDisque(name, ville, rayon) and ville[1] != name[1] and ville[9] < name[9]:
+        if isInDisque(ville1, ville, rayon) and ville[9] <= ville1[9]:
             listeVillesTrouvees.append(ville)
-    print(len(listeVillesTrouvees))
-
-
-    #if len(listeVillesTrouvees) == 0:
-    #    rayon+= 10
-    #    print("PROUT")
-    #    ensembleVilles(name[1], rayon, listeInfo)
-        
+            
     return listeVillesTrouvees
 
 
 def plusProche(listeVillesTrouvees, ville2):
     min_distance = 1000
     VillePlusProche = None
-    ville2 = rechercheVille(ville2, listeInfo)
-    
 
     for ville in listeVillesTrouvees:
         distance = dist_GEOdesique(ville, ville2)
@@ -498,7 +487,6 @@ def plusProche(listeVillesTrouvees, ville2):
             min_distance = distance
             VillePlusProche = ville
 
-    print(VillePlusProche)
     return VillePlusProche
 
 
@@ -518,11 +506,10 @@ def parcoursVilles(vil1, vil2, listeRef, rayon):
 
     while Final != vil2:
         liste = ensembleVilles(vil1, rayon, listeRef)
-        vil1 = plusProche(liste, vil2)[1]
-        Final = vil1
+        vil1 = plusProche(liste, vil2)
+        Final = vil1 #CHANGER LE FAIT QUE ça envoie juste le nom.
 
-        ville_infos = rechercheVille(vil1, listeRef)
-        ListeParcourt.append(ville_infos)
+        ListeParcourt.append(vil1)
 
     return ListeParcourt
 
@@ -535,7 +522,6 @@ def map_trajet(villes_traversees):
     LATS = []
     TEMPS = []
     coords = (46.539758, 2.430331)
-    
     
     for ville in villes_traversees:
         
@@ -648,7 +634,10 @@ while fini == False:
     elif choix == '4':
         print("\nPLus court chemine entre 2 villes")
         listeInfo = appelExtractionVilles()
-        villes_traversees = parcoursVilles("LILLE", "TOULOUSE", listeInfo, 10)
+        ville1 = rechercheVille("PARIS", listeInfo)
+        ville2 = rechercheVille("MARSEILLE", listeInfo)
+        
+        villes_traversees = parcoursVilles(ville1, ville2, listeInfo, 10)
         map_trajet(villes_traversees)
 
         print("*** Traitement terminé, Map réalisée ****")
