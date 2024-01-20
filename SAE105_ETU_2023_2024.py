@@ -250,16 +250,10 @@ def mapTenVilles(maxPopul, minPopul):
     TEMPS = []
     coords = (46.539758, 2.430331)
     
-    for i in villes_max:
+    for i in villes_max+villes_min:
         i = i.split(",")
         LONGS.append(float(i[8]))
         LATS.append(float(i[9]))
-        TEMPS.append(float(i[6]))
-        
-    for i in villes_min:
-        i = i.split(",")
-        LATS.append(float(i[9]))
-        LONGS.append(float(i[8]))
         TEMPS.append(float(i[6]))
         
     # Pour customizer les cercles avec des couleurs, .....
@@ -368,13 +362,7 @@ def mapTenAlt(maxAlt, minAlt):
     TEMPS = []
     coords = (46.539758, 2.430331)
     
-    for i in value_maxAlt:
-        i = i.split(",")
-        LONGS.append(float(i[2]))
-        LATS.append(float(i[3]))
-        TEMPS.append(int(i[4]))
-        
-    for i in value_minAlt:
+    for i in value_maxAlt+value_minAlt:
         i = i.split(",")
         LONGS.append(float(i[2]))
         LATS.append(float(i[3]))
@@ -467,13 +455,16 @@ def ensembleVilles(ville1, rayon, listeInfo):
     :return: listeVilles[i] : la ville recherchée
     """
     listeVillesTrouvees = []
-
-    for ville in listeInfo:
-        if isInDisque(ville1, ville, rayon) and ville[9] <= ville1[9]:
-            listeVillesTrouvees.append(ville)
+    
+    while len(listeVillesTrouvees) <= 50:
+        for ville in listeInfo:
             
+            if isInDisque(ville1, ville, rayon):
+                listeVillesTrouvees.append(ville)
+           
+        rayon += 1
+             
     return listeVillesTrouvees
-
 
 def plusProche(listeVillesTrouvees, ville2):
     min_distance = 1000
@@ -507,9 +498,11 @@ def parcoursVilles(vil1, vil2, listeRef, rayon):
     while Final != vil2:
         liste = ensembleVilles(vil1, rayon, listeRef)
         vil1 = plusProche(liste, vil2)
-        Final = vil1 #CHANGER LE FAIT QUE ça envoie juste le nom.
+        
+        Final = vil1
 
         ListeParcourt.append(vil1)
+        print("Ville traversée :", Final[1])
 
     return ListeParcourt
 
@@ -626,7 +619,7 @@ while fini == False:
     elif choix == '3':
         listeInfo = appelExtractionVilles()
         print("\nDistance Euclidienne entre 2 villes")
-        ville1, ville2 = rechercheVille("PARIS", listeInfo), rechercheVille("MARSEILLE", listeInfo)
+        ville1, ville2 = rechercheVille("DOMLOUP", listeInfo), rechercheVille("RENNES", listeInfo)
         print(f"La distance en kilomètres est : {round(dist_Euclidienne(ville1, ville2), 2)}")
 
         print("\nDistance Géodésique entre 2 villes")
@@ -634,10 +627,12 @@ while fini == False:
     elif choix == '4':
         print("\nPLus court chemine entre 2 villes")
         listeInfo = appelExtractionVilles()
-        ville1 = rechercheVille("PARIS", listeInfo)
-        ville2 = rechercheVille("MARSEILLE", listeInfo)
+        ville_depart, ville_arrivee = input("Entrez la ville de départ : ").upper(), input("Entrez la ville d'arrivée : ").upper()
         
-        villes_traversees = parcoursVilles(ville1, ville2, listeInfo, 10)
+        ville1 = rechercheVille(ville_depart, listeInfo)
+        ville2 = rechercheVille(ville_arrivee, listeInfo)
+        
+        villes_traversees = parcoursVilles(ville1, ville2, listeInfo, 0)
         map_trajet(villes_traversees)
 
         print("*** Traitement terminé, Map réalisée ****")
