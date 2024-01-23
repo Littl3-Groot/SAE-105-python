@@ -15,6 +15,7 @@ import random
 import folium, branca
 import matplotlib.pyplot as plt
 from math import *
+from colorama import *
 
 #-----------------------------------------------------------
 # Fonction qui extrait les 12 informations sur chaque ville
@@ -47,7 +48,7 @@ def extract_info_villes(uneListe):
     temp = []
     for i in uneListe:
         temp.append(i.split(','))
-    print("taille = ",len(temp))
+    #print("taille = ",len(temp))
 
     """
     Il faut faire attention aux Départements de Corse : 2A et 2B
@@ -149,9 +150,9 @@ def extract_villes_depart_indicatif(listeDept, listeInfo):
 # qui extrait les informations sur les villes
 #---------------------------------------------------------
 def appelExtractionVilles():
-    print("Extraction des informations des Villes de France")
+    #print("Extraction des informations des Villes de France")
     listeVillesFr = lire_fichier_csv("villes_france.csv")
-    print("une ligne = ",listeVillesFr[0])
+    #print("une ligne = ",listeVillesFr[0])
 
     # la liste info contient les 12 Informations retenues pour la suite du programme
     info = extract_info_villes(listeVillesFr)
@@ -167,7 +168,6 @@ def rechercheVille(name,listeVilles):
     :param listeVilles: liste de toutes les villes
     :return: listeVilles[i] : la ville recherchée
     """
-
     for ville in listeVilles:
         if name == ville[1]:
             return ville
@@ -210,7 +210,6 @@ def triBulle(liste):
 
 def MinMax5_villes_Habitants(listeInfoDept):
     """
-
     :param numDept:
     :param lstVillesDepart:
 
@@ -346,7 +345,6 @@ def MinMax5Alt_Dept(listeInfoDept):
 #-------------------------------------------------------------------------
 def mapTenAlt(maxAlt, minAlt):
     """
-
     :param maxAlt: fichier contenant les 5 villes de forte différence d'altitude
     :param minAlt: fichier contenant les 5 villes de faible différence d'altitude
     :return:
@@ -368,10 +366,9 @@ def mapTenAlt(maxAlt, minAlt):
         LATS.append(float(i[3]))
         TEMPS.append(int(i[4]))
         
-        # Pour customizer les cercles avec des couleurs, .....
     map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=6)
     cm = branca.colormap.LinearColormap(['blue', 'red'], vmin=min(TEMPS), vmax=max(TEMPS))
-    map1.add_child(cm) # add this colormap on the display
+    map1.add_child(cm)
 
     for lat, lng, size, color in zip(LATS, LONGS, TEMPS, TEMPS):
         folium.CircleMarker(
@@ -523,10 +520,9 @@ def map_trajet(villes_traversees):
         TEMPS.append(10)
 
         
-        # Pour customizer les cercles avec des couleurs, .....
     map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=6)
     cm = branca.colormap.LinearColormap(['blue', 'red'], vmin=min(TEMPS), vmax=max(TEMPS))
-    map1.add_child(cm) # add this colormap on the display
+    map1.add_child(cm)
 
     for lat, lng, size, color in zip(LATS, LONGS, TEMPS, TEMPS):
         folium.CircleMarker(
@@ -564,6 +560,18 @@ def afficheSOUS_MENU(unDepartement):
     print("Q: pour Quitter le sous-menu")
 
 
+def verifError(ville1, ville2):
+    if ville1 is None and ville2 is None:
+        return True, f"{Back.RED}ERREUR{Back.RESET} {Fore.RED}{Style.BRIGHT}La 1ère ville et la 2ème ville n'existent pas.{Style.RESET_ALL}{Fore.RESET}"
+    if ville1 is None:
+        return True, f"{Back.RED}ERREUR{Back.RESET} {Fore.RED}{Style.BRIGHT}La 1ère ville n'existe pas.{Style.RESET_ALL}{Fore.RESET}"
+    if ville2 is None:
+        return True, f"{Back.RED}ERREUR{Back.RESET} {Fore.RED}{Style.BRIGHT}La 2ème ville n'existe pas.{Style.RESET_ALL}{Fore.RESET}"
+    
+    return False, 
+
+        
+
 #=============================================================================================
 # Programme principal
 # Appel de la procédure afficheMENU()
@@ -576,14 +584,11 @@ while fini == False:
         # Pour débuter il faut extraire des informations du fichier CSV
         listeInfo = appelExtractionVilles()
         #=====================================
-        """
-        A compléter en demandant l'indicatif Téléphonique
-        Puis faire un appel à la procédure : appelNombre_Villes_Indicatif(...)
-        """
-        indTel = input("Quel indicatif Téléphonique souhaitez-vous ?")
+
+        indTel = input(f"{Fore.CYAN}Quel indicatif Téléphonique souhaitez-vous ? {Fore.RESET}")
         print(f"Voici le nombre de ville de l'indicatif {indTel} : {appelNombre_Villes_Indicatif(indTel, listeInfo)}")
     elif choix == '2':
-        print("\n**** Nombre de Villes par Département *****")
+        print(f"\n{Fore.CYAN}**** Nombre de Villes par Département *****{Fore.RESET}")
         numdDept = int(input("Donner le numéro du département : "))
         listeInfo = appelExtractionVilles()
         nb_villes, liste_villes_dep = extract_villes_NumDepart(numdDept, listeInfo)
@@ -595,42 +600,54 @@ while fini == False:
             afficheSOUS_MENU(numdDept)
             choixBis = input("votre choix: ")
             if choixBis == '1':
-                print("\nappel de la stat1 : Min/Max Habitants : 5 villes\n")
+                print(f"\n{Fore.CYAN}appel de la stat1 : Min/Max Habitants : 5 villes{Fore.RESET}\n")
                 MinMax5_villes_Habitants(liste_villes_dep)
             elif choixBis == '2':
-                print("\nappel de la stat2: Afficher les 10 villes (DENSITE) sur la carte\n")
+                print(f"\n{Fore.CYAN}appel de la stat2: Afficher les 10 villes (DENSITE) sur la carte{Fore.RESET}\n")
                 MinMax5_villes_Habitants(liste_villes_dep)
                 mapTenVilles("Top5Villes_n°14.txt", "Min5Villes_n°14.txt")
             elif choixBis == '3':
-                print("\nappel de la stat3: ACCROISSEMENT/BAISSE population entre 1999 et 2012\n")
+                print(f"\n{Fore.CYAN}appel de la stat3: ACCROISSEMENT/BAISSE population entre 1999 et 2012{Fore.RESET}\n")
                 MinMax10Accroissement(liste_villes_dep)
             elif choixBis == '4':
-                print("\nappel de la stat4 : HISTOGRAMME du nombre des Villes par habitants\n")
+                print(f"\n{Fore.CYAN}appel de la stat4 : HISTOGRAMME du nombre des Villes par habitants{Fore.RESET}\n")
                 traceHistoVilles(liste_villes_dep)
             elif choixBis == '5':
-                print("\nappel de la stat5 : ALTITUDE Min/Max : 5 villes\n")
+                print(f"\n{Fore.CYAN}appel de la stat5 : ALTITUDE Min/Max : 5 villes{Fore.RESET}\n")
                 MinMax5Alt_Dept(liste_villes_dep)
             elif choixBis == '6':
-                print("\nappel de la stat6: Afficher les 10 villes (ALTITUDE) sur la carte\n")
+                print(f"\n{Fore.CYAN}appel de la stat6: Afficher les 10 villes (ALTITUDE) sur la carte{Fore.RESET}\n")
                 MinMax5Alt_Dept(liste_villes_dep)
                 mapTenAlt("Top5Alt_n°14.txt", "Min5Alt_n°14.txt")
             else:
                 finiBis = True
+
     elif choix == '3':
         listeInfo = appelExtractionVilles()
-        print("\nDistance Euclidienne entre 2 villes")
-        ville1, ville2 = rechercheVille("DOMLOUP", listeInfo), rechercheVille("RENNES", listeInfo)
-        print(f"La distance en kilomètres est : {round(dist_Euclidienne(ville1, ville2), 2)}")
+        ville_depart, ville_arrivee = input("Entrez la ville de départ : ").upper(), input("Entrez la ville d'arrivée : ").upper()
+        ville1, ville2 = rechercheVille(ville_depart, listeInfo), rechercheVille(ville_arrivee, listeInfo)
 
-        print("\nDistance Géodésique entre 2 villes")
-        print(f"La distance Géodésique en kilomètres est : {dist_GEOdesique(ville1, ville2)}")
+        verification = verifError(ville1, ville2)
+        if verification[0]:
+            print(verification[1])
+            break
+            
+        print(f"\n{Fore.CYAN}Distance Euclidiene entre 2 villes{Fore.RESET}")
+        print(f"La distance en kilomètres est : {Fore.RED}{round(dist_Euclidienne(ville1, ville2), 2)}{Fore.RESET}")
+
+        print(f"\n{Fore.CYAN}Distance Géodésique entre 2 villes{Fore.RESET}")
+        print(f"La distance Géodésique en kilomètres est : {Fore.RED}{dist_GEOdesique(ville1, ville2)}{Fore.RESET}")
+
     elif choix == '4':
-        print("\nPLus court chemine entre 2 villes")
+        print(f"\n{Fore.CYAN}Plus court chemin entre 2 villes{Fore.RESET}")
         listeInfo = appelExtractionVilles()
         ville_depart, ville_arrivee = input("Entrez la ville de départ : ").upper(), input("Entrez la ville d'arrivée : ").upper()
-        
-        ville1 = rechercheVille(ville_depart, listeInfo)
-        ville2 = rechercheVille(ville_arrivee, listeInfo)
+        ville1, ville2 = rechercheVille(ville_depart, listeInfo), rechercheVille(ville_arrivee, listeInfo)
+
+        verification = verifError(ville1, ville2)
+        if verification[0]:
+            print(verification[1])
+            break
         
         villes_traversees = parcoursVilles(ville1, ville2, listeInfo, 0)
         map_trajet(villes_traversees)
@@ -641,4 +658,4 @@ while fini == False:
     elif choix == 'F':
         fini = True
 
-print("Fin du programme")
+#print("Fin du programme")
