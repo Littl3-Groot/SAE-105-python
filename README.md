@@ -37,5 +37,8 @@ Le projet sera évalué sur :
 > - `pip install folium`
 > - `pip install matplotlib`
 
+> [!NOTE]
+> Pour améliorer l'affichage en console, j'utilise la bibliothèque `colorama` : `pip install colorama` n'oubliez pas de l'installer avant de lancer le programme.
+
 ## Auteur
 @Littl3-Groot
