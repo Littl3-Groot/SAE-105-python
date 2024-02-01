@@ -141,13 +141,14 @@ def extract_villes_depart_indicatif(listeDept, listeInfo):
     increment = 0
     villes = []
 
-    with open(f"NE02.txt", "w", encoding="utf-8") as my_file:
+    with open(f"NE02.txt", "w", encoding="utf-8") as my_file: 
 
         for ville in listeInfo:
-            if str(ville[0]) in listeDept:
-                increment += 1
-                villes.append(ville)
-                my_file.write(f"{increment} {ville[1]} ({ville[0]})\n")
+            if str(ville[0]) in listeDept: # Si l'indicatif téléphonique est dans la liste listeDept.
+                increment += 1 # Est utilisé pour écrire (dans le fichier NE02.txt) cette ville est la combientième trouvée. 
+                villes.append(ville) # Ajoute la ville trouvé dans la liste villes.
+
+                my_file.write(f"{increment} {ville[1]} ({ville[0]})\n") # Ecrit dans le fichier NE02.txt des informations. 
 
     return len(villes)
 
@@ -478,33 +479,32 @@ def ensembleVilles(ville1, rayon, listeInfo):
     """
     listeVillesTrouvees = []
     
-    while len(listeVillesTrouvees) <= 50:
+    while len(listeVillesTrouvees) <= 50: # Tant qu'on à pas trouver au minimum 50 villes dans le rayon (Marge pour éviter toute erreur).
         for ville in listeInfo:
-            
-            if isInDisque(ville1, ville, rayon):
-                listeVillesTrouvees.append(ville)
+            if isInDisque(ville1, ville, rayon): # Si la ville est dans le disque de rayon "rayon".
+                listeVillesTrouvees.append(ville) #Ajoute alors la ville dans la liste : listeVillesTrouvees.
            
         rayon += 1
              
     return listeVillesTrouvees
 
-def plusProche(listeVillesTrouvees, ville2):
+def plusProche(listeVillesTrouvees, ville2): 
     min_distance = 1000
     VillePlusProche = None
 
-    for ville in listeVillesTrouvees:
-        distance = dist_GEOdesique(ville, ville2)
+    for ville in listeVillesTrouvees: # On parcours la liste des listeVillesTrouvees.
+        distance = dist_GEOdesique(ville, ville2) # Calcul la distance géodésique entre deux villes.
 
-        if dist_GEOdesique(ville, ville2) < min_distance:
+        if distance < min_distance: # Si la distance géodésique est plus petite que la min_distance actuelle.
 
-            min_distance = distance
-            VillePlusProche = ville
+            min_distance = distance # La nouvelle min_distance est distance.
+            VillePlusProche = ville # La nouvelle VillePlusProche est la ville avec la plus petite distance. 
 
     return VillePlusProche
 
-
 def isInDisque(ville, uneVille, rayon):
-    if dist_GEOdesique(ville, uneVille) < rayon:
+
+    if dist_GEOdesique(ville, uneVille) < rayon: # Si la ville est dans le disque de rayon "rayon".
         return True
     else: 
         return False
@@ -517,16 +517,17 @@ def parcoursVilles(vil1, vil2, listeRef, rayon):
     Final = None
     ListeParcourt = []
 
-    with open("parcours.txt", 'w') as f:
-        while Final != vil2:
-            liste = ensembleVilles(vil1, rayon, listeRef)
-            vil1 = plusProche(liste, vil2)
-            
-            Final = vil1
+    with open("parcours.txt", 'w') as f: # On ouvre le fichier parcours.txt.
+        while Final != vil2: # Tant que la ville parcourue n'est pas la ville finale.
 
+            liste = ensembleVilles(vil1, rayon, listeRef) # On récupère la liste des villes autour de vil1.
+            vil1 = plusProche(liste, vil2) # On met la ville la plus proche dans le rayon de le ville finale dans la variable "vil1".
             
+            Final = vil1 # On met la ville parcourue dans la vaiable Final.
+            
+            ListeParcourt.append(vil1) # On ajoute la ville dans le liste ListeParcourt.
+
             f.write(f"Ville traversée : {Final}\n")
-            ListeParcourt.append(vil1)
             print("Ville traversée :", Final[1])
 
     return ListeParcourt
@@ -536,6 +537,8 @@ def parcoursVilles(vil1, vil2, listeRef, rayon):
 # On sauvegarde le trajet dans un fichier html pour l'afficher dans un navigateur
 #----------------------------------------------------------------------------------
 def map_trajet(villes_traversees):
+    # Même principe que la fonction mapTenAlt(...) sans le split.
+
     LONGS = []
     LATS = []
     TEMPS = []
@@ -658,15 +661,15 @@ while fini == False:
             break
             
         print(f"\n{Fore.CYAN}Distance Euclidiene entre 2 villes{Fore.RESET}")
-        print(f"La distance en kilomètres est : {Fore.RED}{round(dist_Euclidienne(ville1, ville2), 2)}{Fore.RESET}")
+        print(f"La distance en kilomètres est : {Fore.GREEN}{round(dist_Euclidienne(ville1, ville2), 2)}{Fore.RESET}")
 
         print(f"\n{Fore.CYAN}Distance Géodésique entre 2 villes{Fore.RESET}")
-        print(f"La distance Géodésique en kilomètres est : {Fore.RED}{dist_GEOdesique(ville1, ville2)}{Fore.RESET}")
+        print(f"La distance Géodésique en kilomètres est : {Fore.GREEN}{round(dist_GEOdesique(ville1, ville2), 1)}{Fore.RESET}")
 
     elif choix == '4':
         print(f"\n{Fore.CYAN}Plus court chemin entre 2 villes{Fore.RESET}")
         listeInfo = appelExtractionVilles()
-        ville_depart, ville_arrivee = input("Entrez la ville de départ : ").upper(), input("Entrez la ville d'arrivée : ").upper()
+        ville_depart, ville_arrivee = input(f"Entrez la ville de départ : ").upper(), input("Entrez la ville d'arrivée : ").upper()
         ville1, ville2 = rechercheVille(ville_depart, listeInfo), rechercheVille(ville_arrivee, listeInfo)
 
         verification = verifError(ville1, ville2)
@@ -677,7 +680,7 @@ while fini == False:
         villes_traversees = parcoursVilles(ville1, ville2, listeInfo, 1)
         map_trajet(villes_traversees)
 
-        print(f"{Fore.GREEN}*** Traitement terminé, Map réalisée sous le nom map_parcours.html****{Fore.RESET}")
+        print(f"{Fore.GREEN}*** Traitement terminé, Map réalisée sous le nom map_parcours.html ***{Fore.RESET}")
     elif choix == '5':
         print("\nAppel de la fonction4\n")
     elif choix == 'F':
