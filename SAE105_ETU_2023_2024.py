@@ -16,6 +16,7 @@ import folium, branca
 import matplotlib.pyplot as plt
 from math import *
 from colorama import *
+import webbrowser
 
 #-----------------------------------------------------------
 # Fonction qui extrait les 12 informations sur chaque ville
@@ -96,8 +97,8 @@ def extract_info_villes(uneListe):
                       float(eval(i[18])),
                       float(eval(i[19])),
                       float(eval(i[20])),
-                      i[25],
-                      i[26]])
+                      int(eval(i[25])),
+                      int(eval(i[26]))])
 
 
     return L
@@ -198,7 +199,7 @@ def extract_villes_NumDepart(numDept, listeInfo):
 
     with open(f"villes_n°{numdDept}.txt", "w", encoding="utf-8") as f:
         for ville in listeInfo: #On parcours la listeInfo
-            if ville[0] == numDept: #Si le numéro de département est égal.
+            if str(ville[0]) == numDept: #Si le numéro de département est égal.
 
                 villes_dep.append(ville) #Ajoute la ville dans la liste villes_dep
                 f.write(f"{ville}\n") #Ecrit la ville dans le fichier ville_n°Numdept.txt
@@ -233,16 +234,20 @@ def MinMax5_villes_Habitants(listeInfoDept):
         *** On IMPOSE le TRI BULLE vu au TP7 ****
         puis extraire les 5 premières valeurs
     """
+    
     liste_min5 = triBulle(listeInfoDept)[0:5] #On récupère les 5 premières villes de la liste triée.
     liste_top5 = triBulle(listeInfoDept)[len(listeInfoDept)-5:len(listeInfoDept)] #On récupère les 5 dernières villes de la liste triée.
-
-    with open("Min5Villes_n°14.txt", "w", encoding="utf-8") as f:
+    num_dep = liste_min5[0][0] 
+    
+    with open(f"Min5Villes_n°{num_dep}.txt", "w", encoding="utf-8") as f:
         for i in liste_min5: #On parcours la liste des 5 villes avec le moins d'habitants
             f.write(f"{i}\n") #On écris la ville dans le fichier texte Top5Villes_n°14.txt
             
-    with open("Top5Villes_n°14.txt", "w", encoding="utf-8") as f:
+    with open(f"Top5Villes_n°{num_dep}.txt", "w", encoding="utf-8") as f:
         for i in liste_top5: #On parcours la liste des 5 villes avec le plus d'habitants
             f.write(f"{i}\n") #On écris la ville dans le fichier texte Top5Villes_n°14.txt
+            
+    print(f"Traitement Terminée, les fichiers s'apellent Min5Villes_n°{num_dep}.txt et Top5Villes_n°{num_dep}.txt")
 
 #-------------------------------------------------------------------------
 # Procédure qui permet d'afficher sur une carte OpenStreetMap
@@ -259,11 +264,12 @@ def mapTenVilles(maxPopul, minPopul):
 
     with open(minPopul, "r") as f_min:
         villes_min = f_min.readlines() # On lis les lignes du fichier.
+    print(villes_max)
 
     LATS = []
     LONGS = []
     TEMPS = []
-    coords = (46.539758, 2.430331)
+    
     
     for i in villes_max+villes_min: # On concatène les liste pour en parcourir une seule. (Moins de complexité)
         i = i.split(",") # On split la string récupérée par des virgules pour récupérer les valeurs de la "liste" qui est en str. 
@@ -272,8 +278,9 @@ def mapTenVilles(maxPopul, minPopul):
         LONGS.append(float(i[8]))
         LATS.append(float(i[9]))
         TEMPS.append(float(i[6]))
-        
-    map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=6)
+    
+    coords = (LATS[0], LONGS[0])
+    map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=9)
     cm = branca.colormap.LinearColormap(['blue', 'red'], vmin=min(TEMPS), vmax=max(TEMPS))
     map1.add_child(cm)
 
@@ -289,6 +296,7 @@ def mapTenVilles(maxPopul, minPopul):
 
     map1.save(outfile='densite_ville.html')
     print("Traitement Terminée, le fichier s'apelle densite_ville.html")
+    webbrowser.open_new_tab('densite_ville.html')
 
 def unPassage_modifier(tab):
     """
@@ -318,6 +326,7 @@ def MinMax10Accroissement(lstVillesDepart):
     value = 0
     
     for i in lstVillesDepart:
+        num_dep = i[0]
         value = i[5]-i[4] # Soustraction pour évaluer l'accroisement.
         liste_accroissement.append([value, i])
         
@@ -325,13 +334,15 @@ def MinMax10Accroissement(lstVillesDepart):
     liste_baisse_trie = triBulle_modifier(liste_accroissement)[0:10] #On récupère les 10 premières valeurs de la liste triée.
     
     
-    with open("TopAcc10Villes_n°Dept.txt", "w", encoding="utf-8") as f:
+    with open(f"TopAcc10Villes_n°{num_dep}.txt", "w", encoding="utf-8") as f:
         for i in liste_accroissement_trie:
             f.write(f"{i[1][0]}, {i[1][1]}, {i[0]}\n") # Ecriture des valeurs intéréssantes (des villes) dans le fichier TopAcc10Villes_n°Dept.txt.
             
-    with open("TopBaisse10Villes_n°Dept.txt", "w", encoding="utf-8") as f:
+    with open(f"TopBaisse10Villes_n°{num_dep}.txt", "w", encoding="utf-8") as f:
         for i in liste_baisse_trie:
             f.write(f"{i[1][0]}, {i[1][1]}, {i[0]}\n") # Ecriture des valeurs intéréssantes (des villes) dans le fichier TopBaisse10Villes_n°Dept.txt.
+            
+    print("Traitement Terminée, les fichiers s'apellent TopBaisse10Villes_n°Dept.txt et TopAcc10Villes_n°Dept.txt")
 
 def MinMax5Alt_Dept(listeInfoDept):
     """
@@ -348,17 +359,18 @@ def MinMax5Alt_Dept(listeInfoDept):
 
     # Même principe que le fonction ci-dessus MinMax10Accroissement(...). Juste optimisée.
     for ville in listeInfoDept:
+        num_dep = ville[0]
         DiffAlt_liste.append([ville[11]-ville[10], ville]) 
-    
+
     DiffAlt_liste_trie = triBulle_modifier(DiffAlt_liste)
     MaxdiffAlt = DiffAlt_liste_trie[len(DiffAlt_liste)-5:len(DiffAlt_liste)]
-    MindiffAlt = DiffAlt_liste_trie[0:5] 
+    MindiffAlt = DiffAlt_liste_trie[0:5]
     
-    with open("Top5Alt_n°14.txt", "w", encoding="utf-8") as f:
+    with open(f"Top5Alt_n°{num_dep}.txt", "w", encoding="utf-8") as f:
         for i in MaxdiffAlt:
             f.write(f"{i[1][0]}, {i[1][1]}, {i[1][8]}, {i[1][9]}, {i[0]}\n")
             
-    with open("Min5Alt_n°14.txt", "w", encoding="utf-8") as f:
+    with open(f"Min5Alt_n°{num_dep}.txt", "w", encoding="utf-8") as f:
         for i in MindiffAlt:
             f.write(f"{i[1][0]}, {i[1][1]}, {i[1][8]}, {i[1][9]}, {i[0]}\n")
 
@@ -375,6 +387,7 @@ def mapTenAlt(maxAlt, minAlt):
     """
     
     # EXACTEMENT le même principe que la fonction mapTenVilles(...).
+    print(maxAlt, minAlt)
     with open(maxAlt, 'r') as f:
         value_maxAlt = f.readlines()
     
@@ -391,8 +404,10 @@ def mapTenAlt(maxAlt, minAlt):
         LONGS.append(float(i[2]))
         LATS.append(float(i[3]))
         TEMPS.append(int(i[4]))
-        
-    map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=6)
+
+    coords = (LATS[0], LONGS[0]) 
+
+    map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=9)
     cm = branca.colormap.LinearColormap(['blue', 'red'], vmin=min(TEMPS), vmax=max(TEMPS))
     map1.add_child(cm)
 
@@ -408,6 +423,7 @@ def mapTenAlt(maxAlt, minAlt):
 
     map1.save(outfile='altitudes_ville.html')
     print("Traitement Terminée, le fichier s'apelle altitudes_ville.html")
+    webbrowser.open_new_tab('altitudes_ville.html')
     
 
 
@@ -479,9 +495,9 @@ def ensembleVilles(ville1, rayon, listeInfo):
     """
     listeVillesTrouvees = []
     
-    while len(listeVillesTrouvees) <= 50: # Tant qu'on à pas trouver au minimum 50 villes dans le rayon (Marge pour éviter toute erreur).
+    while len(listeVillesTrouvees) <= 40: # Tant qu'on à pas trouver au minimum 50 villes dans le rayon (Marge pour éviter toute erreur).
         for ville in listeInfo:
-            if isInDisque(ville1, ville, rayon): # Si la ville est dans le disque de rayon "rayon".
+            if dist_GEOdesique(ville1, ville) < rayon: # Si la ville est dans le disque de rayon "rayon". de base #isInDisque(ville1, ville, rayon)
                 listeVillesTrouvees.append(ville) #Ajoute alors la ville dans la liste : listeVillesTrouvees.
            
         rayon += 1
@@ -489,7 +505,7 @@ def ensembleVilles(ville1, rayon, listeInfo):
     return listeVillesTrouvees
 
 def plusProche(listeVillesTrouvees, ville2): 
-    min_distance = 1000
+    min_distance = float("inf")
     VillePlusProche = None
 
     for ville in listeVillesTrouvees: # On parcours la liste des listeVillesTrouvees.
@@ -528,7 +544,6 @@ def parcoursVilles(vil1, vil2, listeRef, rayon):
             ListeParcourt.append(vil1) # On ajoute la ville dans le liste ListeParcourt.
 
             f.write(f"Ville traversée : {Final}\n")
-            print("Ville traversée :", Final[1])
 
     return ListeParcourt
 
@@ -538,11 +553,10 @@ def parcoursVilles(vil1, vil2, listeRef, rayon):
 #----------------------------------------------------------------------------------
 def map_trajet(villes_traversees):
     # Même principe que la fonction mapTenAlt(...) sans le split.
-
     LONGS = []
     LATS = []
     TEMPS = []
-    coords = (46.539758, 2.430331)
+    coords = (villes_traversees[0][9], villes_traversees[0][8])
     
     for ville in villes_traversees:
         
@@ -551,7 +565,7 @@ def map_trajet(villes_traversees):
         TEMPS.append(10)
 
         
-    map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=6)
+    map1 = folium.Map(location=coords, tiles='OpenStreetMap', zoom_start=8)
     cm = branca.colormap.LinearColormap(['blue', 'red'], vmin=min(TEMPS), vmax=max(TEMPS))
     map1.add_child(cm)
 
@@ -566,11 +580,11 @@ def map_trajet(villes_traversees):
         ).add_to(map1)
 
     map1.save(outfile='map_parcours.html')
+    webbrowser.open_new_tab('map_parcours.html')
 
 #===============================================================
 # AFFICHE MENU
 #===============================================================
-
 def afficheMENU():
     print("\n================ MENU ==================")
     print("taper 1: Nombre de villes en fonction de l'indicatif téléphonique")
@@ -598,7 +612,8 @@ def verifError(ville1, ville2):
         return True, f"{Back.RED}ERREUR{Back.RESET} {Fore.RED}{Style.BRIGHT}La 1ère ville n'existe pas.{Style.RESET_ALL}{Fore.RESET}"
     if ville2 is None:
         return True, f"{Back.RED}ERREUR{Back.RESET} {Fore.RED}{Style.BRIGHT}La 2ème ville n'existe pas.{Style.RESET_ALL}{Fore.RESET}"
-    return False, 
+    
+    return False, None
 
 #=============================================================================================
 # Programme principal
@@ -612,30 +627,35 @@ while fini == False:
         # Pour débuter il faut extraire des informations du fichier CSV
         listeInfo = appelExtractionVilles()
         #=====================================
+        indTel = input(f"{Fore.CYAN}Quel indicatif Téléphonique souhaitez-vous ? (01, 02, 03, 04, 05) {Fore.RESET}")
+        
+        # Gestion des possible mauvais input.
+        while indTel not in ["01", "02", "03", "04", "05"]:
+            print(f"{Fore.RED}Il faut que l'indice télépohnique soit un de ceux ci : (01, 02, 03, 04, 05){Fore.RESET}")
+            indTel = input(f"{Fore.CYAN}Quel indicatif Téléphonique souhaitez-vous ? (01, 02, 03, 04, 05) {Fore.RESET}")  
+        print(f"Voici le nombre de ville de l'indicatif {indTel} : {Fore.GREEN}{appelNombre_Villes_Indicatif(indTel, listeInfo)}{Fore.RESET}")
 
-        indTel = input(f"{Fore.CYAN}Quel indicatif Téléphonique souhaitez-vous ? {Fore.RESET}")
-        print(f"Voici le nombre de ville de l'indicatif {indTel} : {appelNombre_Villes_Indicatif(indTel, listeInfo)}")
     elif choix == '2':
         print(f"\n{Fore.CYAN}**** Nombre de Villes par Département *****{Fore.RESET}")
-        numdDept = int(input("Donner le numéro du département : "))
+        numdDept = input("Donner le numéro du département : ")
         listeInfo = appelExtractionVilles()
         nb_villes, liste_villes_dep = extract_villes_NumDepart(numdDept, listeInfo)
         print(f"il y a {nb_villes} villes.")
         #=====================================
         finiBis = False
         while finiBis == False:
-            # ==> Changer le numéro du Département <==
             afficheSOUS_MENU(numdDept)
             choixBis = input("votre choix: ")
+            num_dep = liste_villes_dep[0][0]
             if choixBis == '1':
                 print(f"\n{Fore.CYAN}appel de la stat1 : Min/Max Habitants : 5 villes{Fore.RESET}\n")
                 MinMax5_villes_Habitants(liste_villes_dep)
             elif choixBis == '2':
-                print(f"\n{Fore.CYAN}appel de la stat2: Afficher les 10 villes (DENSITE) sur la carte{Fore.RESET}\n")
+                print(f"\n{Fore.CYAN}appel de la stat2 : Afficher les 10 villes (DENSITE) sur la carte{Fore.RESET}\n")
                 MinMax5_villes_Habitants(liste_villes_dep)
-                mapTenVilles("Top5Villes_n°14.txt", "Min5Villes_n°14.txt")
+                mapTenVilles(f"Top5Villes_n°{num_dep}.txt", f"Min5Villes_n°{num_dep}.txt")
             elif choixBis == '3':
-                print(f"\n{Fore.CYAN}appel de la stat3: ACCROISSEMENT/BAISSE population entre 1999 et 2012{Fore.RESET}\n")
+                print(f"\n{Fore.CYAN}appel de la stat3 : ACCROISSEMENT/BAISSE population entre 1999 et 2012{Fore.RESET}\n")
                 MinMax10Accroissement(liste_villes_dep)
             elif choixBis == '4':
                 print(f"\n{Fore.CYAN}appel de la stat4 : HISTOGRAMME du nombre des Villes par habitants{Fore.RESET}\n")
@@ -644,9 +664,10 @@ while fini == False:
                 print(f"\n{Fore.CYAN}appel de la stat5 : ALTITUDE Min/Max : 5 villes{Fore.RESET}\n")
                 MinMax5Alt_Dept(liste_villes_dep)
             elif choixBis == '6':
+                print(num_dep)
                 print(f"\n{Fore.CYAN}appel de la stat6: Afficher les 10 villes (ALTITUDE) sur la carte{Fore.RESET}\n")
                 MinMax5Alt_Dept(liste_villes_dep)
-                mapTenAlt("Top5Alt_n°14.txt", "Min5Alt_n°14.txt")
+                mapTenAlt(f"Top5Alt_n°{num_dep}.txt", f"Min5Alt_n°{num_dep}.txt")
             else:
                 finiBis = True
 
@@ -667,9 +688,11 @@ while fini == False:
         print(f"La distance Géodésique en kilomètres est : {Fore.GREEN}{round(dist_GEOdesique(ville1, ville2), 1)}{Fore.RESET}")
 
     elif choix == '4':
+        
         print(f"\n{Fore.CYAN}Plus court chemin entre 2 villes{Fore.RESET}")
         listeInfo = appelExtractionVilles()
         ville_depart, ville_arrivee = input(f"Entrez la ville de départ : ").upper(), input("Entrez la ville d'arrivée : ").upper()
+        rayon = int(input("Choisisez le rayon de recherche : "))
         ville1, ville2 = rechercheVille(ville_depart, listeInfo), rechercheVille(ville_arrivee, listeInfo)
 
         verification = verifError(ville1, ville2)
@@ -677,7 +700,7 @@ while fini == False:
             print(verification[1])
             break
         
-        villes_traversees = parcoursVilles(ville1, ville2, listeInfo, 1)
+        villes_traversees = parcoursVilles(ville1, ville2, listeInfo, rayon)
         map_trajet(villes_traversees)
 
         print(f"{Fore.GREEN}*** Traitement terminé, Map réalisée sous le nom map_parcours.html ***{Fore.RESET}")
@@ -685,5 +708,3 @@ while fini == False:
         print("\nAppel de la fonction4\n")
     elif choix == 'F':
         fini = True
-
-#print("Fin du programme")
